@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My First Node App</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js" integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1" crossorigin="anonymous"></script>
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+<div class="container">
+    <br>
+    <div class="row bg-dark">
+      <input id="status" class="col-12">
+    </div>
+    <div class="jumbotron bg-dark">
+        <h1 class="display-4 text-white text-center"><i class="fa fa-comments"></i> Send Message</h1>
+        <br>
+        <div class="row">
+          <input id = "name" class="col-12 form-control" placeholder="Name">
+        </div>
+        <br>
+        <div class="row">
+          <textarea id = "message" class="col-11 form-control" placeholder="Message"></textarea>
+        
+          <button id="send" class="col-1 btn btn-success"><i class="fa fa-send"></i></button>
+        </div>
+    </div>
+    <div id="messages" class="text-danger">
+
+    </div>
+</div>
+
+
+<script>
+const socket = io();
+socket.on('addMessage',addMessages);
+
+$(() => {
+    $( "#message" ).keypress(function() {
+      socket.emit('typing',$("#name").text());
+    });
+    $("#send").click(()=>{
+       sendMessage({
+          name: $("#name").val(), 
+          message:$("#message").val()});
+        })
+      getMessages()
+    })
+  
+
+    
+function addMessages(message){
+   $("#messages").append(`
+      <h4 class="text-dark"> ${message.name} </h4>
+      <p>  ${message.message} </p>`)
+   }
+   
+function getMessages(){
+  $.get('http://localhost:3000/messages', (data) => {
+   data.forEach(addMessages);
+   })
+ }
+ 
+function sendMessage(message){
+   $.post('http://localhost:3000/messages', message)
+ }
+
+</script>
+</body>
+</html>
