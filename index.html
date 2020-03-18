@@ -12,7 +12,7 @@
 <body>
 <div class="container">
     <br>
-    
+    <div class="row"><div id="status" class="col-4 "></div></div></br>
     <div class="jumbotron bg-dark">
         <h1 class="display-4 text-white text-center"><i class="fa fa-comments"></i> Send Message</h1>
         <br>
@@ -33,38 +33,48 @@
 
 
 <script>
-const socket = io();
+const socket = io.connect('http://localhost:3000');
 socket.on('addMessage',addMessages);
+socket.on('typing',function(name){
+  $("#status").html("<p><em>"+name+" is typing...</em></p>");
+});
+
+
 
 $(() => {
     $( "#message" ).keypress(function() {
-      socket.emit('typing',$("#name").text());
+      socket.emit('typing',$("#name").val());
     });
+
     $("#send").click(()=>{
        sendMessage({
           name: $("#name").val(), 
-          message:$("#message").val()});
-        })
-      getMessages()
+          message:$("#message").val()
+        });
+
+        $("#message").val("");
     })
+      getMessages()
+})
   
 
     
 function addMessages(message){
+  $("#status").text("");
    $("#messages").append(`
       <h4 class="text-dark"> ${message.name} </h4>
       <p>  ${message.message} </p>`)
-   }
+}
    
 function getMessages(){
   $.get('http://localhost:3000/messages', (data) => {
    data.forEach(addMessages);
    })
- }
+}
  
 function sendMessage(message){
    $.post('http://localhost:3000/messages', message)
- }
+}
 
 </script>
 </body>
