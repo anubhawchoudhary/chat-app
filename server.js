@@ -32,7 +32,7 @@ io.on('connection',(socket)=>{
 
 
     socket.on('typing',(name)=>{
-        io.emit('typing', name);
+        socket.broadcast.emit('typing', name);
     })
 })
 
